@@ -1,0 +1,75 @@
+{
+	"info": {
+		"_postman_id": "4f52ad1f-07c4-4fe3-a81d-83434d8d7247",
+		"name": "virtualClassrooms",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Classrooms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "192.168.1.41:8080/api/classrooms",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"41"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"classrooms"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Users get",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Post",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"EricCartman\",\n    \"password\": \"EricCartman\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "192.168.1.41:8080/api/users/signup",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"41"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"users",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
