@@ -82,7 +82,7 @@ class Loby extends Component {
           </Row>
           <Row>
             {classrooms.map((classroom) => (
-              <Col key={classroom._id}>
+              <Col key={classroom.id}>
                 <ClassRoom
                   updateComponent={this.state.updateComponent}
                   classDetails={classroom}

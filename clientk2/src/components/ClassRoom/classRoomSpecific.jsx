@@ -25,7 +25,7 @@ class ClassRoomSpecific extends Component {
           console.log("Response from the backend is : ", result);
           const classDetails = result;
           this.setState({
-            classId: classDetails._id,
+            classId: classDetails.id,
             className: classDetails.name,
             classState: classDetails.state,
             teachers: classDetails.teachers,
@@ -89,10 +89,6 @@ class ClassRoomSpecific extends Component {
           // setLoading(false);
           // setUserSession(response.data.token, response.data.user, response.data.username, response.data.role);
           // props.history.push('/lobby');
-          const reportUpdateurl = "http://0.0.0.0:8080/api/reports/"+this.state.classId
-          return axios.post(reportUpdateurl, {action: "start", teacher_id: userId}).catch((error)=>{
-            console.log("Error while updating audit logs")
-          })
         })
         .catch((error) => {
           //setLoading(false);
@@ -120,11 +116,7 @@ class ClassRoomSpecific extends Component {
             students: response.data.students,
             classState: response.data.state,
           });
-          const reportUpdateurl = "http://0.0.0.0:8080/api/reports/"+this.state.classId
-          return axios.post(reportUpdateurl, {action: "end", teacher_id: userId}).catch((error)=>{
-            console.log("Error while updating audit logs")
           })
-        })
         .catch((error) => {
           if (error.response.status === 401)
             console.log(error.response.data.message);

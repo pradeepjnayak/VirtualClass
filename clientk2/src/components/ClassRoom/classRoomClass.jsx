@@ -32,7 +32,7 @@ class ClassRoom extends Component {
     const updateComponent = this.props.updateComponent || false;
     // console.log(details);
     this.setState({
-      classId: details._id,
+      classId: details.id,
       classState: details.state,
       className: details.name,
       teachers: details.teachers,
@@ -99,7 +99,7 @@ class ClassRoom extends Component {
       details.students !== this.state.students
     ) {
       this.setState({
-        classId: details._id,
+        classId: details.id,
         classState: details.state,
         className: details.name,
         teachers: details.teachers,
