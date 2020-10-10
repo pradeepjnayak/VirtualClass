@@ -4,25 +4,30 @@ import { Button, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { getRole, getUserId, getUserName } from "../../Utils/Common";
 import NavBar from "../NavBar/NavBar";
-import { w3cwebsocket as W3CWebSocket } from "websocket";
+import { baseUrl } from "../../constants";
+import socketIOClient from "socket.io-client";
+//import { socket } from "../Lobby/lobbyClass";
+// const client = new W3CWebSocket("ws://127.0.0.1:7777/");
 
-const client = new W3CWebSocket("ws://127.0.0.1:7777/");
+var socket;
 
 class ClassRoomSpecific extends Component {
-  state = {
+  constructor() {
+    super();
+  this.state = {
     classId: "",
     className: "",
     classState: "offline",
     teachers: [],
     students: [],
   };
-
+  socket = socketIOClient(baseUrl)
+}
   fetchAndUpdateClassDetails(url) {
     fetch(url)
       .then((res) => res.json())
       .then(
         (result) => {
-          console.log("Response from the backend is : ", result);
           const classDetails = result;
           this.setState({
             classId: classDetails.id,
@@ -49,10 +54,21 @@ class ClassRoomSpecific extends Component {
     console.log("[ClassRoomSpecific]Recieved props", passedState);
     const classUrlPath = this.props.history.location.pathname;
     console.log("[ClassRoomSpecific]Recieved Path is ", classUrlPath);
-    const url = "http://0.0.0.0:8080/api/classrooms/".concat(
-      passedState.classId
-    );
+    const url = baseUrl + "/api/classrooms/" + passedState.classId;
     this.fetchAndUpdateClassDetails(url);
+
+    socket.on("update", message => {
+      const updatedData = JSON.parse(message);
+      console.log("[ClassRoomSpecific][Socket] RECEIVED MESSAGE ", updatedData.classId);
+      if (updatedData.classId == this.state.classId) {
+        this.fetchAndUpdateClassDetails(url);
+      }
+    });
+
+    socket.on('connect', message => {
+      console.log(" [ClassRoomSpecific][Socket] connected !")
+    });
+    /*
     client.onopen = () => {
       console.log(
         "[ClassRoomSpecific][Socket] WebSocket Client Connected",
@@ -67,11 +83,12 @@ class ClassRoomSpecific extends Component {
         this.fetchAndUpdateClassDetails(url);
       }
     };
+    */
   }
 
   handleClassStart = (userId) => {
     if (this.state.classId !== null && userId !== null) {
-      var url = "http://0.0.0.0:8080/api/classrooms/";
+      var url = baseUrl + "/api/classrooms/";
       const classroomUpdateUrl = url.concat(this.state.classId);
       console.log(
         "[handleClassStart] ClassRoomUpdate Url is : ",
@@ -101,7 +118,7 @@ class ClassRoomSpecific extends Component {
 
   handleClassEnd = (userId) => {
     if (this.state.classId !== null && userId !== null) {
-      var url = "http://0.0.0.0:8080/api/classrooms/";
+      var url = baseUrl + "/api/classrooms/";
       const classroomUpdateUrl = url.concat(this.state.classId);
       console.log(
         "[handleClassEnd] ClassRoomUpdate Url is : ",
@@ -138,9 +155,7 @@ class ClassRoomSpecific extends Component {
     var stopClass = null;
     const userRole = getRole();
     const userId = getUserId();
-    console.log("User role is ", userRole);
-    console.log("User Id is ", userId);
-    console.log("Class state is ", this.state.classState);
+
     if (getRole() == "TEACHER") {
       startClass = (
         <Button variant="secondary" onClick={() => {}}>

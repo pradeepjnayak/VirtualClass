@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Badge } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import history from "../../history";
+import {baseUrl} from "../../constants";
 import axios from "axios";
 
 class ClassRoom extends Component {
@@ -45,7 +46,7 @@ class ClassRoom extends Component {
   buttonClickHandler = (classId) => {
     console.log("[buttonClickHandler] class id is ", classId);
     if (this.state.role === "STUDENT") {
-      var url = "http://0.0.0.0:8080/api/classrooms/";
+      var url = baseUrl + "/api/classrooms/";
       const classroomUpdateUrl = url.concat(classId);
       console.log(
         "[handleClassEnd] ClassRoomUpdate Url is : ",

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { setUserSession } from "../../Utils/Common";
+import { baseUrl } from "../../constants";
 
 function Login(props) {
   const [loading, setLoading] = useState(false);
@@ -13,7 +14,7 @@ function Login(props) {
     setError(null);
     setLoading(true);
     axios
-      .post("http://0.0.0.0:8080/api/users/signin", {
+      .post(baseUrl+"/api/users/signin", {
         username: username.value,
         password: password.value,
       })

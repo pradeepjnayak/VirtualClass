@@ -5,15 +5,25 @@ import { Container, Row, Col } from "react-bootstrap";
 import { getRole, getUserId, getUserName } from "../../Utils/Common";
 import NavBar from "../NavBar/NavBar";
 import { w3cwebsocket as W3CWebSocket } from "websocket";
-
-const wsClient = new W3CWebSocket("ws://127.0.0.1:7777/");
+import { baseUrl } from "../../constants";
+import socketIOClient from "socket.io-client";
+var socket;
 
 class Loby extends Component {
-  state = { classrooms: [], classroomIds: [] };
+  //state = { classrooms: [], classroomIds: [] , en};
 
+  constructor() {
+    super();
+    this.state = {
+      classrooms : [],
+      classroomIds: [],
+      endpoint: baseUrl
+    };
+    socket = socketIOClient(this.state.endpoint)
+  }
   fetchClassRoomsData() {
     console.log("[fetchClassRoomsData] Fetching the classroom details");
-    fetch("http://0.0.0.0:8080/api/classrooms")
+    fetch(baseUrl+"/api/classrooms")
       .then((res) => res.json())
       .then(
         (result) => {
@@ -44,10 +54,22 @@ class Loby extends Component {
 
     this.fetchClassRoomsData();
     console.log(
-      "[Loby]Total Number of classrooms available are : ",
       this.state.classrooms.length
     );
 
+    socket.on("update", data => {
+      console.log(" Recieved message websocket", data)
+      console.log(data);
+      const updatedData = JSON.parse(data);
+      console.log("[Loby][Socket] RECEIVED MESSAGE ", updatedData);
+
+      //if (this.state.classroomIds.indexOf(updatedData.classId) > -1) {
+      this.fetchClassRoomsData();
+      console.log(
+          "[Loby][Socket]Updated the classroom data based on the notification"
+        );
+    });
+    /*
     wsClient.onopen = () => {
       console.log("[Loby][Socket] WebSocket Client Connected", wsClient);
     };
@@ -64,6 +86,11 @@ class Loby extends Component {
         );
       }
     };
+    */
+  }
+
+  componentWillUnmount(){
+    socket.off("update");
   }
 
   render() {

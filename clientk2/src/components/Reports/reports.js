@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
+import { baseUrl } from "../../constants";
 
 class Reports extends Component {
     state = {
@@ -10,7 +11,7 @@ class Reports extends Component {
         console.log("[Reports]Recieved props", passedState);
         const classUrlPath = this.props.history.location.pathname;
         console.log("[Reports]Recieved Path is ", classUrlPath);
-        const url = "http://0.0.0.0:8080/api/reports/".concat(
+        const url = baseUrl + "/api/reports/".concat(
           passedState.classId
         );
 

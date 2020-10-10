@@ -3,15 +3,20 @@ const { request, response } = require('express')
 const Pool = require('pg').Pool
 
 const dbName="virtual_class"
-
+/*
 const pool = new Pool({
   user: 'me',
-  host: 'localhost',
+  host: process.env.DATABASE_URL,
   database: dbName,
   password: 'password',
   port: 5432,
 })
-
+*/
+// const { Pool } = require('pg')
+const connectionString = process.env.DATABASE_URL || "postgres://me:password@localhost:5432/"+dbName;
+const pool = new Pool({
+  connectionString: connectionString,
+})
 /*
 const createUserTable = () => {
     pool.query(`CREATE TABLE users (
@@ -61,7 +66,7 @@ const checkUsers = (request, response) => {
           console.log("checkUsers -error ", error)
           response.status(500).json({"eror": `users get ${error}`})
         } else {
-        if (results.rows) {
+        if (results.rows[0]) {
             var user_info = results.rows[0]
             var result = {}
             result["token"] = "abc"
@@ -76,12 +81,13 @@ const checkUsers = (request, response) => {
       })
 }
 
-const createClassrooms = (request, response) => {
+const createClassrooms = (request, response, socket) => {
     const { name} = request.body
     pool.query('INSERT INTO classrooms (name,state, students, teachers) VALUES ($1, $2, $3, $4)', [name, 'offline', [], []], (error, result) => {
       if (error) {
         console.log(" Error while creating classrooms.", error)
       }else {
+        socket.emit("update", "Classroom updated@")
         response.status(201).send(`User added with ID: ${result.id}`)
       }
     })
@@ -111,7 +117,7 @@ const getIndividualClassroom = (request, response) => {
 }
 
 
-const updateClassrooms = (request, response) => {
+const updateClassrooms = (request, response, io) => {
     const id = parseInt(request.params.class_id)
     const { action } = request.body
     var query = ""
@@ -165,9 +171,12 @@ const updateClassrooms = (request, response) => {
                   console.log("getClassrooms -error ", error)
                   response.status(500).json({"eror": `getClassrooms ${error}`})
                 } else {
+                    io.emit("update", JSON.stringify({classId: request.params.class_id, status: 'update'}));
+                    /*
                     wss.clients.forEach(function each(client){
                         client.send(JSON.stringify({classId: request.params.class_id, status: 'update'}));
                     });
+                    */
                     response.status(200).json(results.rows[0])
                 }
             }

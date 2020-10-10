@@ -1,16 +1,11 @@
 const express = require("express");
 const path = require('path')
-const http = require("http")
 const bodyParser = require("body-parser");
 var cors = require('cors');
 
 const db = require('./queries')
 
 const app = express();
-
-const webSocketPort = 7777
-var WebSocketServer = require('ws').Server
-wss = new WebSocketServer({ port: webSocketPort });
 
 app.use(cors());
 
@@ -20,6 +15,19 @@ app.use(bodyParser.json())
 var router = express.Router()
 var port = process.env.PORT || 8080; 
 
+var server = app.listen(port)
+
+const socketIo = require("socket.io");
+const io = socketIo.listen(server);
+
+
+io.on("connection", (socket) => {
+    console.log("Connected with new client ", socket.id);
+    socket.on("disconnect", () => {
+      console.log("Client disconnected: ", socket.id);
+    });
+  });
+
 
 app.use(express.static(path.join(__dirname, 'build')));
 
@@ -27,10 +35,17 @@ app.get('/index', (req, res) => {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
     });
 
+/*
+wss = new WebSocketServer({ server: app })
 
+wss.on('connection', (ws) => {
+    console.log(" Client Connected !", ws)
+});
+*/
 // middleware to use for all requests
 router.use(function(req, res, next) {
-    const allowedOrigins = ['http://127.0.0.1:8080', 'http://localhost:8080','http://0.0.0.0:8080'];
+    const allowedOrigins = ['http://127.0.0.1:8080', 'http://localhost:8080','http://0.0.0.0:8080',
+                            'http://127.0.0.1:3000'];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
        res.setHeader('Access-Control-Allow-Origin', origin);
@@ -57,16 +72,19 @@ router.get('/users', db.getUsers)
 
 router.post("/users", db.createUser)
 
-router.post("/classrooms", db.createClassrooms)
+router.post("/classrooms", (req, res)=> {
+    db.createClassrooms(req,res, socket)
+})
 
 router.get("/classrooms", db.getClassrooms)
 
 router.get("/classrooms/:class_id", db.getIndividualClassroom)
 
-router.put("/classrooms/:class_id", db.updateClassrooms)
+router.put("/classrooms/:class_id", (req, res)=> {
+    db.updateClassrooms(req,res, io)
+}
+);
 
 router.get("/reports/:class_id", db.getIndividualClassReport)
-
-app.listen(port)
 
 console.log(" Server listening at ", port)

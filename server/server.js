@@ -3,6 +3,8 @@ const path = require('path')
 const http = require("http")
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose')
+const db = require('./queries')
+
 var ws = require('ws')
 const webSocketPort = 7777
 var WebSocketServer = require('ws').Server
@@ -48,7 +50,8 @@ app.get('/index', (req, res) => {
 
 // middleware to use for all requests
 router.use(function(req, res, next) {
-    const allowedOrigins = ['http://127.0.0.1:8080', 'http://localhost:8080','http://0.0.0.0:8080'];
+    const allowedOrigins = ['http://127.0.0.1:8080', 'http://localhost:8080','http://0.0.0.0:8080/',
+                            'http:.//0.0.0.0:3000', 'http://localhost:3000'];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
        res.setHeader('Access-Control-Allow-Origin', origin);
