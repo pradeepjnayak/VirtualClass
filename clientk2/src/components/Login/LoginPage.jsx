@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import axios from "axios";
 import { setUserSession } from "../../Utils/Common";
 import { baseUrl } from "../../constants";
 
 function Login(props) {
+  let history = useHistory();
   const [loading, setLoading] = useState(false);
   const username = useFormInput("");
   const password = useFormInput("");
@@ -27,7 +29,8 @@ function Login(props) {
           response.data.username,
           response.data.role
         );
-        props.history.push("/lobby");
+        //props.history.push("/lobby");
+        history.push('/lobby')
       })
       .catch((error) => {
         console.log("Error while logging in : ", error);

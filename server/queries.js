@@ -188,8 +188,8 @@ const updateClassrooms = (request, response, io) => {
 }
 
 const getIndividualClassReport =  (request, response) => {
-    console.log(" request.params.class_id ", typeof request.params.class_id)
-    pool.query(`SELECT * FROM reports WHERE classId = '${request.params.class_id}' ORDER BY id ASC`, (error, results) => {
+
+    pool.query(`SELECT * FROM reports WHERE classId = '${request.params.class_id}' ORDER BY id DESC`, (error, results) => {
       if (error) {
         console.log("getIndividualClassReport -error ", error)
         response.status(500).json({"eror": `getIndividualClassReport ${error}`})

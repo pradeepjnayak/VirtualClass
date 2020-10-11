@@ -43,7 +43,6 @@ class App extends Component {
     if (userId) {
       landing = <Lobby />;
     } else {
-      console.log(" props histor ", history)
       landing = <Login history={history}/>;
     }
     return (

@@ -2,15 +2,39 @@ import React, { Component } from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import { baseUrl } from "../../constants";
 
+import socketIOClient from "socket.io-client";
+var socket;
+
+
 class Reports extends Component {
-    state = {
-        reportsList : []
+    constructor(){
+        super();
+        this.state = {
+            reportsList : []
+        }
+        socket = socketIOClient(baseUrl)
     }
     componentDidMount() {
+
+        socket.on("update", data => {
+            const passedState = this.props.history.location.state;
+            const updatedData = JSON.parse(data);
+            const url = baseUrl + "/api/reports/".concat(
+                passedState.classId
+              );
+            if (passedState.classId == updatedData.classId) {
+                fetch(url)
+                .then((res) => res.json())
+                .then((result) => {
+                    this.setState( prevState => {
+                        const reportsList = result;
+                        return {
+                            reportsList,
+                        };
+                    })
+                })}
+            })
         const passedState = this.props.history.location.state;
-        console.log("[Reports]Recieved props", passedState);
-        const classUrlPath = this.props.history.location.pathname;
-        console.log("[Reports]Recieved Path is ", classUrlPath);
         const url = baseUrl + "/api/reports/".concat(
           passedState.classId
         );
@@ -19,12 +43,14 @@ class Reports extends Component {
             .then((res) => res.json())
             .then((result) => {
                 this.setState( prevState => {
-                    const reportsList = prevState.reportsList.concat(result)
+                    const reportsList = result
                     return {
                         reportsList,
                     };
                 })
             })
+        
+        
     }
     render() {
         return (
