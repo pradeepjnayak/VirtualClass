@@ -6,23 +6,21 @@ import { getRole, getUserId, getUserName } from "../../Utils/Common";
 import NavBar from "../NavBar/NavBar";
 import { baseUrl } from "../../constants";
 import socketIOClient from "socket.io-client";
-//import { socket } from "../Lobby/lobbyClass";
-// const client = new W3CWebSocket("ws://127.0.0.1:7777/");
 
 var socket;
 
 class ClassRoomSpecific extends Component {
   constructor() {
     super();
-  this.state = {
-    classId: "",
-    className: "",
-    classState: "offline",
-    teachers: [],
-    students: [],
-  };
+    this.state = {
+      classId: "",
+      className: "",
+      classState: "offline",
+      teachers: [],
+      students: [],
+    };
   socket = socketIOClient(baseUrl)
-}
+  }
   fetchAndUpdateClassDetails(url) {
     fetch(url)
       .then((res) => res.json())
@@ -225,7 +223,10 @@ class ClassRoomSpecific extends Component {
               <Container fluid>
                 <Row>
                   <Col>
-                    <p> Students : {studentCount} </p>
+                    {this.state.students.map( (value, index) => {
+                      return <Row key={index}>{value}</Row>
+                    })}
+
                   </Col>
                   <Col>
                     <p> Teachers : {teachersCount}</p>
