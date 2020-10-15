@@ -1,11 +1,11 @@
+require('dotenv').config()
 const app = require('express')();
 const routes = require('./api/routes');
 var bodyParser = require('body-parser');
 
-var { SERVICE_PORT } = require('./config/server')
 
-var server = app.listen(SERVICE_PORT, () => {
-    console.log(" Starting service : ", SERVICE_PORT)
+var server = app.listen(process.env.SERVICE_PORT || 3000, () => {
+    console.log(" Starting web service : ", process.env.SERVICE_PORT)
 })
 
 const socketIo = require("socket.io");

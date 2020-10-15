@@ -1,4 +1,4 @@
 require('dotenv').config()
-export default {
+module.exports =  {
     SERVICE_PORT: process.env.SERVICE_PORT
 }
