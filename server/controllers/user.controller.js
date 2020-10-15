@@ -57,7 +57,7 @@ exports.signIn = (req, res) => {
 
   User.checkUsers(user, (err, data) => {
     if (err) {
-      if (err.kind === 'not_found') {
+      if (err.kind === "not_found") {
         return res.status(401).send({
           message: `Invalid username password.`,
         });
@@ -73,7 +73,7 @@ exports.signIn = (req, res) => {
 
 // Find a single user with a userId
 exports.findOne = (req, res) => {
-  User.findById(req.params.UserId , (err, data) => {
+  User.findById(req.params.UserId, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({

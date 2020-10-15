@@ -45,26 +45,30 @@ User.findById = (UserId, result) => {
 
 // Validate user on username password.
 User.checkUsers = (userCred, result) => {
-    dB.query("SELECT * FROM users WHERE username = $1 AND password = $2", [userCred.username, userCred.password], (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(err, null);
-            return;
-          }
-        if ( res.rows.length > 0) {
-            var user_info = {
-                // TODO calculate unique string for token.
-                token : 'abc',
-                user  : res.rows[0]['id'],
-                username : res.rows[0]['username'],
-                role  : res.rows[0]['role']
-            }
-            result(null, user_info);
-            return;
-        }
-        result({ kind: "not_found" }, null);
-      });
-}
+  dB.query(
+    "SELECT * FROM users WHERE username = $1 AND password = $2",
+    [userCred.username, userCred.password],
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.rows.length > 0) {
+        var user_info = {
+          // TODO calculate unique string for token.
+          token: "abc",
+          user: res.rows[0]["id"],
+          username: res.rows[0]["username"],
+          role: res.rows[0]["role"],
+        };
+        result(null, user_info);
+        return;
+      }
+      result({ kind: "not_found" }, null);
+    }
+  );
+};
 
 User.getAll = (result) => {
   dB.query("SELECT * FROM Users", (err, res) => {

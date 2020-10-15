@@ -1,4 +1,4 @@
-require('dotenv').config()
-module.exports =  {
-    SERVICE_PORT: process.env.SERVICE_PORT
-}
+require("dotenv").config();
+module.exports = {
+  SERVICE_PORT: process.env.SERVICE_PORT,
+};

@@ -33,7 +33,8 @@ exports.findAll = (req, res) => {
   Classroom.getAll((err, data) => {
     if (err)
       res.status(500).send({
-        message: err.message || "Some error occurred while retrieving classrooms.",
+        message:
+          err.message || "Some error occurred while retrieving classrooms.",
       });
     else res.send(data);
   });
@@ -57,50 +58,45 @@ exports.findOne = (req, res) => {
 };
 
 // Update a Classroom identified by the classId in the request
-exports.update = ( req, res, socket) => {
+exports.update = (req, res, socket) => {
   // Validate Request
-  console.log(" req :::: ", req.io)
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!",
     });
   }
 
-  //console.log(" res ::: ", res)
-  //console.log(" socket -->",socket)
-    // Create a Classroom
-    const classroom = new Classroom({
-      name: req.body.name,
-      state: req.body.name,
-      action: req.body.action,
-      student_id: req.body.student_id,
-      teacher_id: req.body.teacher_id
-    });
-  Classroom.updateById(
-    req.params.class_id,
-    req.body,
-    (err, data) => {
-      if (err) {
-        if (err.kind === "not_found") {
-          res.status(404).send({
-            message: `Not found Class with id ${req.params.class_id}.`,
-          });
-        } else {
-          res.status(500).send({
-            message: "Error updating Class with id " + req.params.class_id,
-          });
-        }
+  // Create a Classroom
+  const classroom = new Classroom({
+    name: req.body.name,
+    state: req.body.name,
+    action: req.body.action,
+    student_id: req.body.student_id,
+    teacher_id: req.body.teacher_id,
+  });
+  Classroom.updateById(req.params.class_id, req.body, (err, data) => {
+    if (err) {
+      if (err.kind === "not_found") {
+        res.status(404).send({
+          message: `Not found Class with id ${req.params.class_id}.`,
+        });
       } else {
-        req.io.emit(
-          "update",
-          JSON.stringify({
-            classId: req.params.class_id,
-            status: "update",
-          }));
-      res.send(data);
+        res.status(500).send({
+          message: "Error updating Class with id " + req.params.class_id,
+        });
       }
+    } else {
+      // notify to all connected clients via websocket (socket.io) on update.
+      req.io.emit(
+        "update",
+        JSON.stringify({
+          classId: req.params.class_id,
+          status: "update",
+        })
+      );
+      res.send(data);
     }
-  );
+  });
 };
 
 // Delete a Classroom with the specified classId in the request

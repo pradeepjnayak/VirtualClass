@@ -57,5 +57,4 @@ Report.getAll = (result) => {
   });
 };
 
-
 module.exports = Report;

@@ -2,7 +2,7 @@ const dB = require("../db");
 // import socket object
 // ClasssRoom Schema
 const ClasssRoom = function (ClasssRoom) {
-    // name of classroom
+  // name of classroom
   this.name = ClasssRoom.name;
   // class state - active / offline
   this.state = ClasssRoom.state;
@@ -14,7 +14,9 @@ const ClasssRoom = function (ClasssRoom) {
 
 ClasssRoom.create = (newClasssRoom, result) => {
   const { name } = newClasssRoom;
-  dB.query('INSERT INTO classrooms (name,state, students, teachers) VALUES ($1, $2, $3, $4)', [name, 'offline', [], []],
+  dB.query(
+    "INSERT INTO classrooms (name,state, students, teachers) VALUES ($1, $2, $3, $4)",
+    [name, "offline", [], []],
     (error, res) => {
       if (error) {
         console.log("[ClasssRoomCreate] [Error : ", error);
@@ -27,21 +29,24 @@ ClasssRoom.create = (newClasssRoom, result) => {
 };
 
 ClasssRoom.findById = (ClasssRoomId, result) => {
-  dB.query(`SELECT * FROM ClasssRooms WHERE id = ${ClasssRoomId}`, (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(err, null);
-      return;
-    }
+  dB.query(
+    `SELECT * FROM ClasssRooms WHERE id = ${ClasssRoomId}`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
 
-    if (res.rows) {
-      console.log("found ClasssRoom: ", res.rows[0]);
-      result(null, res.rows[0]);
-      return;
+      if (res.rows) {
+        console.log("found ClasssRoom: ", res.rows[0]);
+        result(null, res.rows[0]);
+        return;
+      }
+      // not found ClasssRoom with the id
+      result({ kind: "not_found" }, null);
     }
-    // not found ClasssRoom with the id
-    result({ kind: "not_found" }, null);
-  });
+  );
 };
 
 ClasssRoom.getAll = (result) => {
@@ -59,60 +64,64 @@ ClasssRoom.getAll = (result) => {
 
 ClasssRoom.updateById = (classId, classroom, result) => {
   const id = parseInt(classId);
-  const { name , state, action, student_id, teacher_id } = classroom;
-  console.log(" [controller] [classroom] ",classroom.action)
-  var query = ""
-  var values = []
-  var reports_update_data = {action: action, classId: id , time: new Date()}
+  const { name, state, action, student_id, teacher_id } = classroom;
+  console.log(" [controller] [classroom] ", classroom.action);
+  var query = "";
+  var values = [];
+  var reports_update_data = { action: action, classId: id, time: new Date() };
   if (action === "start") {
-      query += "UPDATE classrooms SET state = $1, teachers = array_append(teachers, $2) WHERE id = $3"
-      values  = ["active", teacher_id, id]
-      reports_update_data['message'] = 'Class was started.'
+    query +=
+      "UPDATE classrooms SET state = $1, teachers = array_append(teachers, $2) WHERE id = $3";
+    values = ["active", teacher_id, id];
+    reports_update_data["message"] = "Class was started.";
   } else if (action === "end") {
-      query += "UPDATE classrooms SET state = $1, teachers = $2, students = $3 WHERE id = $4"
-      values  = ["offline" , [], [], id]   
-      reports_update_data['message'] = 'Class was ended.'
+    query +=
+      "UPDATE classrooms SET state = $1, teachers = $2, students = $3 WHERE id = $4";
+    values = ["offline", [], [], id];
+    reports_update_data["message"] = "Class was ended.";
   } else if (action === "enter") {
-      if (teacher_id) {
-          reports_update_data['message'] = `Teacher ${teacher_id} entered`
-          query += "UPDATE classrooms SET teachers =array_append(teachers, $1) WHERE id = $2"
-          values  = [teacher_id, id]
-      } else {
-          reports_update_data['message'] = `student ${student_id} entered`
-          query += "UPDATE classrooms SET students =array_append(students, $1) WHERE id = $2"
-          values  = [student_id, id] 
-      }
+    if (teacher_id) {
+      reports_update_data["message"] = `Teacher ${teacher_id} entered`;
+      query +=
+        "UPDATE classrooms SET teachers =array_append(teachers, $1) WHERE id = $2";
+      values = [teacher_id, id];
+    } else {
+      reports_update_data["message"] = `student ${student_id} entered`;
+      query +=
+        "UPDATE classrooms SET students =array_append(students, $1) WHERE id = $2";
+      values = [student_id, id];
+    }
   } else if (action == "exit") {
-      if (teacher_id) {
-          reports_update_data['message'] = `Teacher ${teacher_id} exited`
-          query += "UPDATE classrooms SET teachers =array_remove(teachers, $1) WHERE id = $2"
-          values  = [teacher_id, id]
-      } else {
-          reports_update_data['message'] = `student ${student_id} exited .`
-          query += "UPDATE classrooms SET students =array_remove(students, $1) WHERE id = $2"
-          values  = [student_id, parseInt(id)]
-      }
+    if (teacher_id) {
+      reports_update_data["message"] = `Teacher ${teacher_id} exited`;
+      query +=
+        "UPDATE classrooms SET teachers =array_remove(teachers, $1) WHERE id = $2";
+      values = [teacher_id, id];
+    } else {
+      reports_update_data["message"] = `student ${student_id} exited .`;
+      query +=
+        "UPDATE classrooms SET students =array_remove(students, $1) WHERE id = $2";
+      values = [student_id, parseInt(id)];
+    }
   }
-  console.log(" [models] [Classroom] query ", query)
-  console.log(" [models] [Classroom] values ", values)
+  console.log(" [models] [Classroom] query ", query);
+  console.log(" [models] [Classroom] values ", values);
 
-  dB.query(query, values,
-            (err, res) => {
-                if (err) {
-                  console.log("error: ", err);
-                  result(null, err);
-                  return;
-                }
-                console.log("[Models] [Classroom] rows: ",res)
-                if (res.rowCount === 0) {
-                  // not found ClasssRoom with the id
-                  result({ kind: "not_found" }, null);
-                  return;
-                }
-                console.log("updated ClasssRoom: ", { id: id, ...ClasssRoom });
-                result(null, { id: id, ...ClasssRoom });
-              }
-            );
+  dB.query(query, values, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(null, err);
+      return;
+    }
+    console.log("[Models] [Classroom] rows: ", res);
+    if (res.rowCount === 0) {
+      // not found ClasssRoom with the id
+      result({ kind: "not_found" }, null);
+      return;
+    }
+    console.log("updated ClasssRoom: ", { id: id, ...ClasssRoom });
+    result(null, { id: id, ...ClasssRoom });
+  });
 };
 
 ClasssRoom.remove = (id, result) => {
